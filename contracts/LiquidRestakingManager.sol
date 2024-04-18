@@ -33,7 +33,7 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         IStrategyManager strategyManager_,
         IDelegationManager delegationManager_
     ) {
-        if (!_grantRole(ADMIN_ROLE, msg.sender)) revert();
+        _grantRole(ADMIN_ROLE, msg.sender);
         if (!hasRole(ADMIN_ROLE, msg.sender)) revert();
 
         liquidRestakingToken = new LiquidRestakingToken(name_, symbol_);
@@ -47,9 +47,8 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         liquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
         liquidStakingToken.safeIncreaseAllowance(address(strategyManager), amount);
         uint256 shares = strategyManager.depositIntoStrategy(strategy, liquidStakingToken, amount);
-        //   liquidRestakingToken.mint(receiver, shares);
 
-        liquidRestakingToken.mint(receiver, amount);
+        liquidRestakingToken.mint(receiver, shares);
 
         emit Deposit(msg.sender, receiver, amount);
     }
@@ -62,9 +61,19 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         delegationManager.delegateTo(operator, approverSignatureAndExpiry, approverSalt);
     }
 
-    function undelegateFrom() external onlyRole(ADMIN_ROLE) {
-        delegationManager.undelegate(address(this));
+    function queueWithdrawals(IDelegationManager.QueuedWithdrawalParams[] calldata queuedWithdrawalParams)
+        external
+        onlyRole(ADMIN_ROLE)
+    {
+        delegationManager.queueWithdrawals(queuedWithdrawalParams);
     }
 
-    function withdraw() external onlyRole(ADMIN_ROLE) {}
+    function completeQueuedWithdrawal(
+        IDelegationManager.Withdrawal calldata withdrawal,
+        IERC20[] calldata tokens,
+        uint256 middlewareTimesIndex,
+        bool receiveAsTokens
+    ) external onlyRole(ADMIN_ROLE) {
+        delegationManager.completeQueuedWithdrawal(withdrawal, tokens, middlewareTimesIndex, receiveAsTokens);
+    }
 }
