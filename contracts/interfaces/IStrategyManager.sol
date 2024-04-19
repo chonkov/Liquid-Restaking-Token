@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
-import {IStrategy} from "./IStrategy.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import {IStrategy} from "./IStrategy.sol";
+import {IDelegationManager} from "./IDelegationManager.sol";
 
 interface IStrategyManager {
     function depositIntoStrategy(IStrategy strategy, IERC20 token, uint256 amount) external returns (uint256 shares);
@@ -13,5 +15,5 @@ interface IStrategyManager {
 
     function stakerStrategyListLength(address staker) external view returns (uint256);
 
-    //  function delegation() external view returns (IDelegationManager);
+    function delegation() external view returns (IDelegationManager);
 }
