@@ -61,6 +61,10 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         delegationManager.delegateTo(operator, approverSignatureAndExpiry, approverSalt);
     }
 
+    function undelegateFrom() external onlyRole(ADMIN_ROLE) {
+        delegationManager.undelegate(address(this));
+    }
+
     function queueWithdrawals(IDelegationManager.QueuedWithdrawalParams[] calldata queuedWithdrawalParams)
         external
         onlyRole(ADMIN_ROLE)
