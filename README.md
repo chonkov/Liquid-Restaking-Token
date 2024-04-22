@@ -1,4 +1,4 @@
-# Lottery Contract
+# Liquid Restaking Manager
 
 ## Table of Contents
 
