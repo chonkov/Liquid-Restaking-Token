@@ -1,5 +1,8 @@
 const { ethers } = require("hardhat");
 
+/**
+ * @notice Queues a withdrawal from EigenLayer
+ */
 async function queueWithdrawal(user, LiquidRestakingManager, strategyAddr) {
   const liquidRestakingTokenAddr =
     await LiquidRestakingManager.liquidRestakingToken();

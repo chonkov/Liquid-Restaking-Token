@@ -18,6 +18,9 @@ const {
 const { delegateTo } = require("./delegateTo");
 const { queueWithdrawal } = require("./queueWithdrawal");
 
+/**
+ * @notice Deploys the whole system and simulates the flow
+ */
 async function main() {
   const [user] = await ethers.getSigners();
 

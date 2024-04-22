@@ -1,5 +1,8 @@
 const { ethers } = require("hardhat");
 
+/**
+ * @notice Simulates `user` deposit inside the `Liquid Restaking Manager`
+ */
 async function depositStETH(user, LiquidRestakingManagerAddr, stETHAddr) {
   const LiquidRestakingManager = await ethers.getContractAt(
     "LiquidRestakingManager",
@@ -8,11 +11,7 @@ async function depositStETH(user, LiquidRestakingManagerAddr, stETHAddr) {
   const stETH = await ethers.getContractAt("IERC20", stETHAddr);
 
   const amount = await stETH.balanceOf(user.address);
-  console.log(amount);
   await stETH.approve(LiquidRestakingManager.target, amount);
-  console.log(
-    await stETH.allowance(user.address, LiquidRestakingManager.target)
-  );
 
   await LiquidRestakingManager.deposit(amount, user.address);
 }

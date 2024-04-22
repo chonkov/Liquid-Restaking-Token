@@ -1,5 +1,8 @@
 const { ethers } = require("hardhat");
 
+/**
+ * @notice Deploys `Liquid Restaking Manager` with all the required constructor arguments
+ */
 async function deployLiquidityRestakingManager(
   admin,
   stETHAddr,
@@ -20,7 +23,9 @@ async function deployLiquidityRestakingManager(
     strategyManagerAddr,
     delegationManagerAddr
   );
-  console.log(LiquidRestakingManager.target);
+  console.log(
+    `LiquidRestakingManager address: ${LiquidRestakingManager.target}`
+  );
 
   return LiquidRestakingManager;
 }

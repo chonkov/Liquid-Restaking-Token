@@ -16,7 +16,7 @@ contract Helper {
      * @param threshold_ The amount of owners required for a successful execution of a transaction
      * @return The encoded data
      */
-    function returnData(address[] calldata owners_, uint256 threshold_) external pure returns (bytes memory) {
+    function initCalldata(address[] calldata owners_, uint256 threshold_) external pure returns (bytes memory) {
         return abi.encodeCall(
             ISafeProxy.setup, (owners_, threshold_, address(0), "", address(0), address(0), 0, payable(address(0)))
         );
