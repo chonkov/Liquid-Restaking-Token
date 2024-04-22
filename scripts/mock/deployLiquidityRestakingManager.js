@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function deployLiquidityRestakingManager(
-  user,
+  admin,
   stETHAddr,
   strategyAddr,
   strategyManagerAddr,
@@ -10,7 +10,7 @@ async function deployLiquidityRestakingManager(
   const LiquidRestakingManager = await (
     await ethers.getContractFactory("LiquidRestakingManager")
   ).deploy(
-    user.address,
+    admin,
     "Liquid Restaking Ether",
     "rstETH",
     stETHAddr,

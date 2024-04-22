@@ -24,7 +24,7 @@ async function main() {
   await getStakedEther(user, WETHAddr, poolAddr);
 
   const LiquidRestakingManager = await deployLiquidityRestakingManager(
-    user,
+    user.address,
     stETHAddr,
     strategyAddr,
     strategyManagerAddr,
