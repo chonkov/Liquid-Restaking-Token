@@ -12,6 +12,10 @@ import {IStrategyManager} from "./interfaces/IStrategyManager.sol";
 import {IDelegationManager} from "./interfaces/IDelegationManager.sol";
 import {LiquidRestakingToken} from "./LiquidRestakingToken.sol";
 
+/**
+ * @author Georgi Chonkov
+ * @notice Main contract acting as an entry point. Users can deposit LSTs in exchange for LRTs and additional yield
+ */
 contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
     using SafeERC20 for IERC20;
 
@@ -34,6 +38,17 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
 
+    /**
+     * @param admin_ `Safe` multi-signature wallet
+     * @param name_ Name of LRT (Liquid Restaking Token)
+     * @param symbol_ Symbol of LRT
+     * @param rewardTokenName_ Name of reward token
+     * @param rewardTokenSymbol_ Symbol of reward token
+     * @param liquidStakingToken_ LST used for deposits by users. Deposited into EigenLayer.
+     * @param strategy_ Whitelisted strategy by EigenLayer
+     * @param strategyManager_ EigenLayer's Strategy manager
+     * @param delegationManager_ EigenLayer's Delegation manager
+     */
     constructor(
         address admin_,
         string memory name_,
@@ -57,17 +72,27 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         rewardsToken = new LiquidRestakingToken(rewardTokenName_, rewardTokenSymbol_);
     }
 
-    modifier updateReward(address _account) {
+    /**
+     * @notice Updates `userRewardPerTokenPaid` & `rewardPerTokenStored` storage variables
+     * @param account User that makes a call
+     */
+    modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         updatedAt = block.timestamp;
 
-        if (_account != address(0)) {
-            rewards[_account] = earned(_account);
-            userRewardPerTokenPaid[_account] = rewardPerTokenStored;
+        if (account != address(0)) {
+            rewards[account] = earned(account);
+            userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
     }
 
+    /**
+     * @notice Main function used by user to deposit their LSTs
+     * @param amount The amount of tokens to deposit
+     * @param receiver The address that will receive LRT tokens and can later claim rewards
+     * @dev It transfers all tokens to the `Strategy Manager` and mints the corresponding `shares`
+     */
     function deposit(uint256 amount, address receiver) external updateReward(msg.sender) {
         liquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
         liquidStakingToken.safeIncreaseAllowance(address(strategyManager), amount);
@@ -81,25 +106,51 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         emit Deposit(msg.sender, receiver, amount);
     }
 
+    /**
+     * @notice Delegates to an operator. Only `admin` can call this function
+     * @param operator Operator to delegate to
+     * @param approverSignatureAndExpiry Signature, used only if the operator requires it
+     * @param approverSalt Random value
+     */
     function delegateTo(
         address operator,
         IDelegationManager.SignatureWithExpiry calldata approverSignatureAndExpiry,
         bytes32 approverSalt
     ) external onlyRole(ADMIN_ROLE) {
         delegationManager.delegateTo(operator, approverSignatureAndExpiry, approverSalt);
+
+        emit DelegateTo(operator);
     }
 
+    /**
+     * @notice Undelegates from an operator. Only `admin` can call this function
+     */
     function undelegateFrom() external onlyRole(ADMIN_ROLE) {
         delegationManager.undelegate(address(this));
+
+        emit UndelegateFrom();
     }
 
+    /**
+     * @notice Queues a withdrawal. Only `admin` can call this function
+     * @param queuedWithdrawalParams Operator to delegate to
+     */
     function queueWithdrawals(IDelegationManager.QueuedWithdrawalParams[] calldata queuedWithdrawalParams)
         external
         onlyRole(ADMIN_ROLE)
     {
         delegationManager.queueWithdrawals(queuedWithdrawalParams);
+
+        emit QueueWithdrawal(queuedWithdrawalParams);
     }
 
+    /**
+     * @notice Completes a withdrawal after a certain period has passed. Only `admin` can call this function
+     * @param withdrawal The withdraw to complete
+     * @param tokens Tokens to receive
+     * @param middlewareTimesIndex Index which is currently not required (After the slasher is added it should be specified)
+     * @param receiveAsTokens Whether to receive tokens or shares
+     */
     function completeQueuedWithdrawal(
         IDelegationManager.Withdrawal calldata withdrawal,
         IERC20[] calldata tokens,
@@ -107,8 +158,14 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         bool receiveAsTokens
     ) external onlyRole(ADMIN_ROLE) {
         delegationManager.completeQueuedWithdrawal(withdrawal, tokens, middlewareTimesIndex, receiveAsTokens);
+
+        emit CompleteQueuedWithdrawal(withdrawal, tokens, middlewareTimesIndex, receiveAsTokens);
     }
 
+    /**
+     * @notice Calculates the value stored in `rewardPerTokenStored` variable
+     * @dev It is used the same way as in Synthetix's `Staking Rewards` contract
+     */
     function rewardPerToken() public view returns (uint256) {
         if (totalSupply == 0) {
             return rewardPerTokenStored;
@@ -117,12 +174,18 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         return rewardPerTokenStored + (REWARD_RATE * (block.timestamp - updatedAt) * 1e18) / totalSupply;
     }
 
-    function earned(address _account) public view returns (uint256) {
-        return
-            ((balanceOf[_account] * (rewardPerToken() - userRewardPerTokenPaid[_account])) / 1e18) + rewards[_account];
+    /**
+     * @notice Returns earned rewards
+     * @param account Earned rewards by this account
+     */
+    function earned(address account) public view returns (uint256) {
+        return ((balanceOf[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 1e18) + rewards[account];
     }
 
-    function getRewards() external updateReward(msg.sender) {
+    /**
+     * @notice Allows caller to claim their rewards
+     */
+    function claimRewards() external updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
