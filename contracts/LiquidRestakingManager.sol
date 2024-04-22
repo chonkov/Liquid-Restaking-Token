@@ -26,6 +26,7 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
     IDelegationManager public immutable delegationManager;
 
     constructor(
+        address admin_,
         string memory name_,
         string memory symbol_,
         IERC20 liquidStakingToken_,
@@ -33,8 +34,8 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         IStrategyManager strategyManager_,
         IDelegationManager delegationManager_
     ) {
-        _grantRole(ADMIN_ROLE, msg.sender);
-        if (!hasRole(ADMIN_ROLE, msg.sender)) revert();
+        _grantRole(ADMIN_ROLE, admin_);
+        if (!hasRole(ADMIN_ROLE, admin_)) revert();
 
         liquidRestakingToken = new LiquidRestakingToken(name_, symbol_);
         liquidStakingToken = liquidStakingToken_;
