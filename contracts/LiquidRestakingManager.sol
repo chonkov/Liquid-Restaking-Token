@@ -16,7 +16,8 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
     using SafeERC20 for IERC20;
 
     // keccak256("ADMIN_ROLE");
-    bytes32 constant ADMIN_ROLE = 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775;
+    bytes32 public constant ADMIN_ROLE = 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775;
+    uint256 public constant REWARD_RATE = 1_000;
 
     ILiquidRestakingToken public immutable liquidRestakingToken;
     IERC20 public immutable liquidStakingToken;
@@ -24,11 +25,21 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
 
     IStrategyManager public immutable strategyManager;
     IDelegationManager public immutable delegationManager;
+    ILiquidRestakingToken public immutable rewardsToken;
+
+    uint256 public updatedAt;
+    uint256 public rewardPerTokenStored;
+    mapping(address => uint256) public userRewardPerTokenPaid;
+    mapping(address => uint256) public rewards;
+    uint256 public totalSupply;
+    mapping(address => uint256) public balanceOf;
 
     constructor(
         address admin_,
         string memory name_,
         string memory symbol_,
+        string memory rewardTokenName_,
+        string memory rewardTokenSymbol_,
         IERC20 liquidStakingToken_,
         IStrategy strategy_,
         IStrategyManager strategyManager_,
@@ -42,12 +53,28 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         strategy = strategy_;
         strategyManager = strategyManager_;
         delegationManager = delegationManager_;
+
+        rewardsToken = new LiquidRestakingToken(rewardTokenName_, rewardTokenSymbol_);
     }
 
-    function deposit(uint256 amount, address receiver) external {
+    modifier updateReward(address _account) {
+        rewardPerTokenStored = rewardPerToken();
+        updatedAt = block.timestamp;
+
+        if (_account != address(0)) {
+            rewards[_account] = earned(_account);
+            userRewardPerTokenPaid[_account] = rewardPerTokenStored;
+        }
+        _;
+    }
+
+    function deposit(uint256 amount, address receiver) external updateReward(msg.sender) {
         liquidStakingToken.safeTransferFrom(msg.sender, address(this), amount);
         liquidStakingToken.safeIncreaseAllowance(address(strategyManager), amount);
         uint256 shares = strategyManager.depositIntoStrategy(strategy, liquidStakingToken, amount);
+
+        balanceOf[msg.sender] += amount;
+        totalSupply += amount;
 
         liquidRestakingToken.mint(receiver, shares);
 
@@ -80,5 +107,26 @@ contract LiquidRestakingManager is ILiquidRestakingManager, AccessControl {
         bool receiveAsTokens
     ) external onlyRole(ADMIN_ROLE) {
         delegationManager.completeQueuedWithdrawal(withdrawal, tokens, middlewareTimesIndex, receiveAsTokens);
+    }
+
+    function rewardPerToken() public view returns (uint256) {
+        if (totalSupply == 0) {
+            return rewardPerTokenStored;
+        }
+
+        return rewardPerTokenStored + (REWARD_RATE * (block.timestamp - updatedAt) * 1e18) / totalSupply;
+    }
+
+    function earned(address _account) public view returns (uint256) {
+        return
+            ((balanceOf[_account] * (rewardPerToken() - userRewardPerTokenPaid[_account])) / 1e18) + rewards[_account];
+    }
+
+    function getRewards() external updateReward(msg.sender) {
+        uint256 reward = rewards[msg.sender];
+        if (reward > 0) {
+            rewards[msg.sender] = 0;
+            rewardsToken.mint(msg.sender, reward);
+        }
     }
 }

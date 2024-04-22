@@ -13,6 +13,8 @@ async function deployLiquidityRestakingManager(
     admin,
     "Liquid Restaking Ether",
     "rstETH",
+    "Governance Liquid Restaking Token",
+    "GLRT",
     stETHAddr,
     strategyAddr,
     strategyManagerAddr,
