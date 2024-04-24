@@ -50,4 +50,8 @@ interface IDelegationManager is ISignatureUtils {
     function isDelegated(address staker) external view returns (bool);
 
     function isOperator(address operator) external view returns (bool);
+
+    function pendingWithdrawals(bytes32 withdrawalRoot) external view returns (bool);
+
+    function calculateWithdrawalRoot(Withdrawal memory withdrawal) external pure returns (bytes32);
 }
