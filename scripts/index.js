@@ -15,6 +15,7 @@ const {
 const { deploySafe } = require("./deploySafe");
 const { delegateTo } = require("./delegateTo");
 const { queueWithdrawal } = require("./queueWithdrawal");
+const { completeQueuedWithdrawal } = require("./completeQueuedWithdrawal");
 const { getStakedEther } = require("./mock/getStakedEther");
 const { depositStETH } = require("./mock/depositStETH");
 const {
@@ -76,7 +77,7 @@ async function main() {
   /**
    * @notice 6. Queue a withdrawal via `Safe`
    */
-  await queueWithdrawal(
+  const Withdrawal = await queueWithdrawal(
     signers,
     Helper,
     SafeProxy,
@@ -85,6 +86,21 @@ async function main() {
     strategyManagerAddr,
     delegationManagerAddr,
     operatorAddr
+  );
+
+  /**
+   * @notice 7. Complete a queued withdrawal via `Safe`
+   */
+  await completeQueuedWithdrawal(
+    signers,
+    Withdrawal,
+    LiquidRestakingManager,
+    SafeProxy,
+    Helper,
+    stETHAddr,
+    strategyManagerAddr,
+    delegationManagerAddr,
+    strategyAddr
   );
 }
 

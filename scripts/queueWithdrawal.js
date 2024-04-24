@@ -69,7 +69,7 @@ async function queueWithdrawal(
   );
 
   const blockNumber = await Helper.blockNumber();
-  const withdrawalRoot = await DelegationManager.calculateWithdrawalRoot([
+  const Withdrawal = [
     to,
     operatorAddr,
     to,
@@ -77,7 +77,10 @@ async function queueWithdrawal(
     parseInt(blockNumber) + 1,
     [strategyAddr],
     [totalShares],
-  ]);
+  ];
+  const withdrawalRoot = await DelegationManager.calculateWithdrawalRoot(
+    Withdrawal
+  );
   let isPending = await DelegationManager.pendingWithdrawals(withdrawalRoot);
   console.log(`Is ${withdrawalRoot} pending: ${isPending}`);
 
@@ -95,6 +98,8 @@ async function queueWithdrawal(
   console.log(
     `Total shares owned by 'LiquidRestakingManager' contract after queued withdrawal: ${totalShares}`
   );
+
+  return Withdrawal;
 }
 
 module.exports = { queueWithdrawal };
