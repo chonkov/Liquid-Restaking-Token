@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 /**
- * @notice Deploys `Safe` wallet through the `Factory`
+ * @notice Delegates to an operator via 'Safe' wallet
  */
 async function delegateTo(
   signers,
@@ -15,7 +15,7 @@ async function delegateTo(
 
   const to = LiquidRestakingManager.target;
 
-  const txData = await Helper.getTransactionData(
+  const txData = await Helper.getDelegateToCalldata(
     to,
     operatorAddr,
     currentNonce
@@ -38,7 +38,7 @@ async function delegateTo(
     signatures.push(newSignature);
   }
 
-  const executeTxData = await Helper.executeTx(
+  const executeTxData = await Helper.executeDelegateToTx(
     to,
     operatorAddr,
     signatures[0],
