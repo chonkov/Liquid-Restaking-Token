@@ -13,17 +13,41 @@ const {
 } = require("./utils/constants.js");
 
 const { deploySafe } = require("./deploySafe");
+const { delegateTo } = require("./delegateTo");
 const { getStakedEther } = require("./mock/getStakedEther");
 const { depositStETH } = require("./mock/depositStETH");
 const {
   deployLiquidityRestakingManager,
 } = require("./mock/deployLiquidityRestakingManager");
 
+require("dotenv").config();
+
 /**
  * @notice Main entry point
  */
 async function main() {
   const [user, ...signers] = await ethers.getSigners();
+
+  const privateKey1 = process.env.PRIVATE_KEY_1 || "";
+  const privateKey2 = process.env.PRIVATE_KEY_2 || "";
+  const privateKey3 = process.env.PRIVATE_KEY_3 || "";
+
+  // console.log(privateKey1);
+  // console.log(privateKey2);
+  // console.log(privateKey3);
+
+  const signer1 = new ethers.Wallet(privateKey1);
+  const signer2 = new ethers.Wallet(privateKey2);
+  const signer3 = new ethers.Wallet(privateKey3);
+
+  // const signers = [signer1, signer2, signer3];
+  // let payload = ethers.AbiCoder.defaultAbiCoder().encode(["address", "address", "uint256" ], [ address1, address2, amountRound2 ]);
+  // let payloadHash = ethers.keccak256(payload);
+  // let signature = await signer.signMessage(ethers.getBytes(payloadHash));
+
+  // console.log(signers[0].address);
+  // console.log(signers[1].address);
+  // console.log(signers[2].address);
 
   /**
    * @notice 1. Deposit native ETH into `WETH` contract -> Swap `WETH` for `stETH`
@@ -58,54 +82,19 @@ async function main() {
   await depositStETH(user, LiquidRestakingManager.target, stETHAddr);
 
   /**
-   * @notice Last part is still NOT finished
    * @notice 5. Execute a tx via `Safe`
    */
-  const currentNonce = await SafeProxy.nonce();
 
-  const to = LiquidRestakingManager.target;
   const Helper = await (await ethers.getContractFactory("Helper")).deploy();
 
-  const txHash = await Helper.getTransactionHash(
-    to,
-    operatorAddr,
-    currentNonce
+  await delegateTo(
+    signers,
+    Helper,
+    SafeProxy,
+    LiquidRestakingManager,
+    delegationManagerAddr,
+    operatorAddr
   );
-  // console.log(txHash);
-
-  const signatures = [];
-  for (let i = 1; i <= 2; i++) {
-    const signature = await signers[i].signMessage(txHash);
-    signatures.push(signature);
-  }
-
-  // console.log(signatures);
-
-  const executeTxData = await Helper.executeTx(
-    to,
-    operatorAddr,
-    signatures[0],
-    signatures[1]
-  );
-  // console.log(executeTxData);
-
-  const DelegationManager = await ethers.getContractAt(
-    "IDelegationManager",
-    delegationManagerAddr
-  );
-
-  console.log(
-    `'LiquidRestakingManager' delegated: ${await DelegationManager.isDelegated(
-      to
-    )}`
-  );
-
-  // await signers[0].sendTransaction({
-  //   to: safeProxyAddr,
-  //   data: executeTxData,
-  // });
-
-  // console.log(await DelegationManager.isDelegated(to));
 }
 
 main().catch((error) => {

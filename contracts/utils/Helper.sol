@@ -38,14 +38,12 @@ contract Helper {
      * @param to_ The contract a call will be made to
      * @param operator_ The operator to delegate to
      * @param nonce_ A random number required by `Safe` for non-replay attacks
-     * @return The transcation hash
+     * @return The transcation data
      */
-    function getTransactionHash(address to_, address operator_, uint256 nonce_) public pure returns (bytes32) {
-        return keccak256(
-            abi.encodeCall(
-                ISafeProxy.getTransactionHash,
-                (to_, 0, delegateToData(operator_), Enum.Operation(0), 0, 0, 0, address(0), address(0), nonce_)
-            )
+    function getTransactionData(address to_, address operator_, uint256 nonce_) public pure returns (bytes memory) {
+        return abi.encodeCall(
+            ISafeProxy.getTransactionHash,
+            (to_, 0, delegateToData(operator_), Enum.Operation(0), 0, 0, 0, address(0), address(0), nonce_)
         );
     }
 
@@ -62,6 +60,8 @@ contract Helper {
         pure
         returns (bytes memory)
     {
+        bytes memory encodedSignatures = abi.encodePacked(signature1_, signature2_);
+
         return abi.encodeCall(
             ISafeProxy.execTransaction,
             (
@@ -74,7 +74,7 @@ contract Helper {
                 0,
                 address(0),
                 payable(address(0)),
-                abi.encode(signature1_, signature2_)
+                encodedSignatures
             )
         );
     }
