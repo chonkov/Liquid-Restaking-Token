@@ -18,7 +18,7 @@ npx hardhat node --fork <YOUR_RPC_URL>
 npx hardhat run scripts/mock/deploySystem.js --network localhost
 ```
 
-3. `Main.js` is the entry point for the script interaction. Similarly to the 'mocks', it relies on forking mainnet. The difference is that `admin` of the `Liquid Restaking Manager` is a `Safe` wallet, owned by the first three default accounts provided by Hardhat. Through the multi-sig, admins have access to certain functionalities inside the `Liquid Restaking Manager` contract such as: delegating to/undelegating from a registered operator, queue & complete withdrawals. Deploy script:
+3. Inside `Core` dir are the main scripts. `Index.js` is the entry point for the script interaction. Similarly to the 'mocks', it relies on forking mainnet. The difference is that `admin` of the `Liquid Restaking Manager` is a `Safe` wallet, owned by the first three default accounts provided by Hardhat. Through the multi-sig, admins have access to certain functionalities inside the `Liquid Restaking Manager` contract such as: delegating to/undelegating from a registered operator, queuing & completing withdrawals. Deploy script:
 
 ```
 npx hardhat node --fork <YOUR_RPC_URL>

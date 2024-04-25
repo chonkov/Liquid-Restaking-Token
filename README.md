@@ -9,7 +9,7 @@
 
 ## About The Project
 
-Contract built on top of EigenLayer as a restaking services. Users can deposit (restake) their Liquid Staking Tokens, such as `stETH`, and earn additional yield on top of what they earn by holding their LSTs. The `Liquid Restaking Manager` has an admin role assigned to a `Safe` wallet. It can `delegate` to registered operator, `undelegate` from an operator, `queue` & `withdraw` LSTs from EigenLayer. When depositing, users receive LRTs - Liquid Restaking Tokens, through them, they can redeem their initial LSTs. The idea behind LTRs is similar to LSTs - they enable to users to have liquid assets even when participate in securing protocols in PoS systems.
+Contracts built on top of EigenLayer as a restaking services. Users can deposit (restake) their Liquid Staking Tokens, such as `stETH`, and earn additional yield on top of what they earn by holding their LSTs. The `Liquid Restaking Manager` has an admin role assigned to a `Safe` wallet. It can `delegate` to a registered operator, `undelegate` from an operator, `queue` withdrawals & `complete` withdrawals of LSTs from EigenLayer. When depositing, users receive LRTs - Liquid Restaking Tokens, through them, they can redeem their initial LSTs. The idea behind LTRs is similar to LSTs - they enable to users to have liquid assets even when participate in securing protocols in PoS systems.
 
 ## # Built With
 
