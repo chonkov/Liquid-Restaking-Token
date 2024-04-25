@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISafeProxy, Enum} from "../interfaces/ISafeProxy.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
 import {IDelegationManager} from "../interfaces/IDelegationManager.sol";
-import {LiquidRestakingManager} from "../LiquidRestakingManager.sol";
+import {LiquidRestakingManager} from "../core/LiquidRestakingManager.sol";
 
 /**
  * @author Georgi Chonkov

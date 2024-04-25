@@ -4,7 +4,7 @@ pragma solidity 0.8.22;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import {ILiquidRestakingToken} from "./interfaces/ILiquidRestakingToken.sol";
+import {ILiquidRestakingToken} from "../interfaces/ILiquidRestakingToken.sol";
 
 /**
  * @author Georgi Chonkov

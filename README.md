@@ -45,7 +45,7 @@ npx hardhat node --fork <YOUR_RPC_URL>
 2. Run main script
 
 ```
-npx hardhat run scripts/index.js --network localhost
+npx hardhat run scripts/core/index.js --network localhost
 ```
 
 [solidity]: https://img.shields.io/badge/Solidity-%23363636.svg?style=for-the-badge&logo=solidity&logoColor=white

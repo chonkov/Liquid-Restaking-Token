@@ -10,17 +10,17 @@ const {
   stETHAddr,
   safeProxyFactoryAddr,
   safeImplementationAddr,
-} = require("./utils/constants.js");
+} = require("../utils/constants.js");
 
 const { deploySafe } = require("./deploySafe");
 const { delegateTo } = require("./delegateTo");
 const { queueWithdrawal } = require("./queueWithdrawal");
 const { completeQueuedWithdrawal } = require("./completeQueuedWithdrawal");
-const { getStakedEther } = require("./mock/getStakedEther");
-const { depositStETH } = require("./mock/depositStETH");
+const { getStakedEther } = require("../mock/getStakedEther");
+const { depositStETH } = require("../mock/depositStETH");
 const {
   deployLiquidityRestakingManager,
-} = require("./mock/deployLiquidityRestakingManager");
+} = require("../mock/deployLiquidityRestakingManager");
 
 /**
  * @notice Main entry point

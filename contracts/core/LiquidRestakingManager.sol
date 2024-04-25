@@ -5,11 +5,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-import {ILiquidRestakingToken} from "./interfaces/ILiquidRestakingToken.sol";
-import {ILiquidRestakingManager} from "./interfaces/ILiquidRestakingManager.sol";
-import {IStrategy} from "./interfaces/IStrategy.sol";
-import {IStrategyManager} from "./interfaces/IStrategyManager.sol";
-import {IDelegationManager} from "./interfaces/IDelegationManager.sol";
+import {ILiquidRestakingToken} from "../interfaces/ILiquidRestakingToken.sol";
+import {ILiquidRestakingManager} from "../interfaces/ILiquidRestakingManager.sol";
+import {IStrategy} from "../interfaces/IStrategy.sol";
+import {IStrategyManager} from "../interfaces/IStrategyManager.sol";
+import {IDelegationManager} from "../interfaces/IDelegationManager.sol";
 import {LiquidRestakingToken} from "./LiquidRestakingToken.sol";
 
 /**

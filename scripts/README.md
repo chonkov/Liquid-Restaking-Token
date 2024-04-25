@@ -25,5 +25,5 @@ npx hardhat node --fork <YOUR_RPC_URL>
 ```
 
 ```
-npx hardhat run scripts/index.js --network localhost
+npx hardhat run scripts/core/index.js --network localhost
 ```
